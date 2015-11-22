@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>FluentTc by borismod</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">FluentTc</h1>
+      <h2 class="project-tagline">TeamCity fluent API </h2>
+      <a href="https://github.com/borismod/FluentTc" class="btn">View on GitHub</a>
+      <a href="https://github.com/borismod/FluentTc/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/borismod/FluentTc/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <p><a href="https://waffle.io/borismod/FluentTc"><img src="https://badge.waffle.io/borismod/FluentTc.png?label=ready&amp;title=Ready" alt="Stories in Ready"></a></p>
+
+<h1>
+<a id="fluenttc" class="anchor" href="#fluenttc" aria-hidden="true"><span class="octicon octicon-link"></span></a>FluentTc</h1>
+
+<p>Easy-to-use, readable and comprehensive library for consuming TeamCity REST API. Written using real scenarios in mind, enables variuos range of queries and operation on TeamCity</p>
+
+<h1>
+<a id="how-to-get" class="anchor" href="#how-to-get" aria-hidden="true"><span class="octicon octicon-link"></span></a>How to get</h1>
+
+<p>install-package FluentTc</p>
+
+<h1>
+<a id="how-to-use" class="anchor" href="#how-to-use" aria-hidden="true"><span class="octicon octicon-link"></span></a>How to use</h1>
+
+<div class="highlight highlight-source-cs"><pre><span class="pl-c">// Disable agent by IP</span>
+<span class="pl-k">new</span> RemoteTc().Connect(a =&gt; a.ToHost(<span class="pl-s"><span class="pl-pds">"</span>tc<span class="pl-pds">"</span></span>).AsGuest())
+    .DisableAgent(_ =&gt; _.Ip(<span class="pl-s"><span class="pl-pds">"</span>127.0.0.1<span class="pl-pds">"</span></span>));
+
+<span class="pl-c">// Enable agent by name</span>
+<span class="pl-k">new</span> RemoteTc().Connect(a =&gt; a.ToHost(<span class="pl-s"><span class="pl-pds">"</span>tc<span class="pl-pds">"</span></span>).AsGuest())
+    .EnableAgent(_ =&gt; _.Name(<span class="pl-s"><span class="pl-pds">"</span>agent1<span class="pl-pds">"</span></span>));
+
+<span class="pl-c">// Get project by ID</span>
+<span class="pl-k">var</span> project = <span class="pl-k">new</span> RemoteTc().Connect(a =&gt; a.ToHost(<span class="pl-s"><span class="pl-pds">"</span>tc<span class="pl-pds">"</span></span>).AsGuest())
+    .GetProjectById(<span class="pl-s"><span class="pl-pds">"</span>FluentTc<span class="pl-pds">"</span></span>);
+
+<span class="pl-c">// Get connected Agents</span>
+<span class="pl-k">var</span> agents = <span class="pl-k">new</span> RemoteTc().Connect(a =&gt; a.ToHost(<span class="pl-s"><span class="pl-pds">"</span>tc<span class="pl-pds">"</span></span>).AsGuest())
+    .GetAgents(h =&gt; h.Connected());
+
+<span class="pl-c">// Get disconnected, enabled and authorized agents</span>
+<span class="pl-k">var</span> enabledAuthorizedButDisconnectedAgents = <span class="pl-k">new</span> RemoteTc().Connect(a =&gt; a.ToHost(<span class="pl-s"><span class="pl-pds">"</span>tc<span class="pl-pds">"</span></span>).AsGuest())
+    .GetAgents(h =&gt; h.Disconnected().Enabled().Authorized());
+
+<span class="pl-c">// Get builds queue from specific project by its ID</span>
+<span class="pl-k">var</span> buildQueue = <span class="pl-k">new</span> RemoteTc().Connect(_ =&gt; _.ToHost(<span class="pl-s"><span class="pl-pds">"</span>tc<span class="pl-pds">"</span></span>))
+    .GetBuildsQueue(_ =&gt; _.Project(__ =&gt; __.Id(<span class="pl-s"><span class="pl-pds">"</span>OpenSourceProject<span class="pl-pds">"</span></span>)));
+
+<span class="pl-c">// Get builds queue from specific project by its ID and build configuration name</span>
+<span class="pl-k">var</span> buildQueue2 = <span class="pl-k">new</span> RemoteTc().Connect(_ =&gt; _.ToHost(<span class="pl-s"><span class="pl-pds">"</span>tc<span class="pl-pds">"</span></span>))
+    .GetBuildsQueue(
+        __ =&gt;
+            __.Project(___ =&gt; ___.Id(<span class="pl-s"><span class="pl-pds">"</span>OpenSourceProject<span class="pl-pds">"</span></span>))
+                .BuildConfiguration(b =&gt; b.Name(<span class="pl-s"><span class="pl-pds">"</span>FluentTc<span class="pl-pds">"</span></span>)));
+
+<span class="pl-c">// Remove builds from queue by project Id recursively </span>
+<span class="pl-k">var</span> connectedTc = <span class="pl-k">new</span> RemoteTc().Connect(_ =&gt; _.ToHost(<span class="pl-s"><span class="pl-pds">"</span>tc<span class="pl-pds">"</span></span>));
+connectedTc.GetBuildConfigurationsRecursively(<span class="pl-s"><span class="pl-pds">"</span>ProjectId<span class="pl-pds">"</span></span>)
+    .ForEach(c =&gt; connectedTc.RemoveBuildFromQueue(__ =&gt; __.BuildConfiguration(___ =&gt; ___.Id(c.Id))));
+
+<span class="pl-c">// Get not personal builds, under build configuration bt2, under project OpenSourceProject, that ran on agent Agent01 on branch master</span>
+<span class="pl-k">var</span> builds = <span class="pl-k">new</span> RemoteTc().Connect(a =&gt; a.ToHost(<span class="pl-s"><span class="pl-pds">"</span>tc<span class="pl-pds">"</span></span>).AsGuest())
+    .GetBuilds(
+        h =&gt;
+            h.BuildConfiguration(r =&gt; r.Id(<span class="pl-s"><span class="pl-pds">"</span>bt2<span class="pl-pds">"</span></span>))
+                .NotPersonal()
+                .Project(r =&gt; r.Name(<span class="pl-s"><span class="pl-pds">"</span>OpenSourceProject<span class="pl-pds">"</span></span>))
+                .AgentName(<span class="pl-s"><span class="pl-pds">"</span>Agent01<span class="pl-pds">"</span></span>)
+                .Branch(b =&gt; b.Name(<span class="pl-s"><span class="pl-pds">"</span>master<span class="pl-pds">"</span></span>)));
+
+<span class="pl-c">// Get personal builds with additional properties: StartDate, FinishDate and StatusText</span>
+builds = <span class="pl-k">new</span> RemoteTc().Connect(_ =&gt; _.ToHost(<span class="pl-s"><span class="pl-pds">"</span>tc<span class="pl-pds">"</span></span>))
+    .GetBuilds(_ =&gt; _.Personal(), _ =&gt; _.DefaultCount(),
+        _ =&gt; _.IncludeStartDate().IncludeFinishDate().IncludeStatusText());
+
+<span class="pl-c">// Get 5 personal builds with default properties</span>
+builds = <span class="pl-k">new</span> RemoteTc().Connect(_ =&gt; _.ToHost(<span class="pl-s"><span class="pl-pds">"</span>tc<span class="pl-pds">"</span></span>))
+    .GetBuilds(_ =&gt; _.Personal(), _ =&gt; _.Count(<span class="pl-c1">5</span>), _ =&gt; _.IncludeDefaults());
+
+<span class="pl-c">// Get 5 not personal builds from build configuration bt2 with default properties</span>
+builds = <span class="pl-k">new</span> RemoteTc().Connect(_ =&gt; _.ToHost(<span class="pl-s"><span class="pl-pds">"</span>tc<span class="pl-pds">"</span></span>))
+    .GetBuilds(_ =&gt; _.BuildConfiguration(x =&gt; x.Id(<span class="pl-s"><span class="pl-pds">"</span>bt2<span class="pl-pds">"</span></span>)).NotPersonal().NotRunning(), _ =&gt; _.Count(<span class="pl-c1">5</span>),
+        _ =&gt; _.IncludeDefaults());
+
+<span class="pl-c">// Get specific build by ID (with all the properties)</span>
+build = <span class="pl-k">new</span> RemoteTc().Connect(_ =&gt; _.ToHost(<span class="pl-s"><span class="pl-pds">"</span>tc<span class="pl-pds">"</span></span>))
+    .GetBuild(_ =&gt; _.Id(<span class="pl-c1">123456</span>));
+
+<span class="pl-c">// Get build configuration by ID</span>
+<span class="pl-k">var</span> buildConfiguration = <span class="pl-k">new</span> RemoteTc().Connect(_ =&gt; _.ToHost(<span class="pl-s"><span class="pl-pds">"</span>tc<span class="pl-pds">"</span></span>))
+    .GetBuildConfiguration(_ =&gt; _.Id(<span class="pl-s"><span class="pl-pds">"</span>bt2<span class="pl-pds">"</span></span>));
+
+<span class="pl-c">// Retrieves all the build configuration under a project</span>
+<span class="pl-k">var</span> buildConfigurations = <span class="pl-k">new</span> RemoteTc().Connect(_ =&gt; _.ToHost(<span class="pl-s"><span class="pl-pds">"</span>tc<span class="pl-pds">"</span></span>).AsGuest())
+    .GetBuildConfigurations(_ =&gt; _.Project(__ =&gt; __.Id(<span class="pl-s"><span class="pl-pds">"</span>Trunk<span class="pl-pds">"</span></span>)));
+
+<span class="pl-c">// Retrieves all the build configuration under a project recursively</span>
+buildConfigurations = <span class="pl-k">new</span> RemoteTc().Connect(_ =&gt; _.ToHost(<span class="pl-s"><span class="pl-pds">"</span>tc<span class="pl-pds">"</span></span>).AsGuest())
+    .GetBuildConfigurations(_ =&gt; _.ProjectRecursively(__ =&gt; __.Id(<span class="pl-s"><span class="pl-pds">"</span>Trunk<span class="pl-pds">"</span></span>)));
+
+<span class="pl-c">// Set build parameters on build configuration bt2</span>
+<span class="pl-k">new</span> RemoteTc().Connect(_ =&gt; _.ToHost(<span class="pl-s"><span class="pl-pds">"</span>tc<span class="pl-pds">"</span></span>))
+    .SetParameters(_ =&gt; _.Id(<span class="pl-s"><span class="pl-pds">"</span>bt2<span class="pl-pds">"</span></span>),
+        _ =&gt; _.Parameter(<span class="pl-s"><span class="pl-pds">"</span>name<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>value<span class="pl-pds">"</span></span>).Parameter(<span class="pl-s"><span class="pl-pds">"</span>name2<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>value<span class="pl-pds">"</span></span>));
+
+<span class="pl-c">// Run build configuration bt2</span>
+<span class="pl-k">new</span> RemoteTc().Connect(_ =&gt; _.ToHost(<span class="pl-s"><span class="pl-pds">"</span>tc<span class="pl-pds">"</span></span>))
+    .RunBuildConfiguration(_ =&gt; _.Id(<span class="pl-s"><span class="pl-pds">"</span>bt2<span class="pl-pds">"</span></span>));
+
+<span class="pl-c">// Run build configuration bt2 with custom build parameters</span>
+<span class="pl-k">new</span> RemoteTc().Connect(_ =&gt; _.ToHost(<span class="pl-s"><span class="pl-pds">"</span>tc<span class="pl-pds">"</span></span>))
+    .RunBuildConfiguration(_ =&gt; _.Id(<span class="pl-s"><span class="pl-pds">"</span>bt2<span class="pl-pds">"</span></span>),
+        _ =&gt; _.Parameter(<span class="pl-s"><span class="pl-pds">"</span>name<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>value<span class="pl-pds">"</span></span>).Parameter(<span class="pl-s"><span class="pl-pds">"</span>name2<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>value<span class="pl-pds">"</span></span>));
+
+<span class="pl-c">// Run build configuration bt2 on specific agent</span>
+<span class="pl-k">new</span> RemoteTc().Connect(_ =&gt; _.ToHost(<span class="pl-s"><span class="pl-pds">"</span>tc<span class="pl-pds">"</span></span>))
+    .RunBuildConfiguration(having =&gt; having.Id(<span class="pl-s"><span class="pl-pds">"</span>bt2<span class="pl-pds">"</span></span>), onAgent =&gt; onAgent.Name(<span class="pl-s"><span class="pl-pds">"</span>agent1<span class="pl-pds">"</span></span>));
+
+<span class="pl-c">// Run build configuration bt2 on specific agent with custom parameters</span>
+<span class="pl-k">new</span> RemoteTc().Connect(_ =&gt; _.ToHost(<span class="pl-s"><span class="pl-pds">"</span>tc<span class="pl-pds">"</span></span>))
+    .RunBuildConfiguration(_ =&gt; _.Id(<span class="pl-s"><span class="pl-pds">"</span>bt2<span class="pl-pds">"</span></span>), _ =&gt; _.Name(<span class="pl-s"><span class="pl-pds">"</span>agent1<span class="pl-pds">"</span></span>),
+        _ =&gt; _.Parameter(<span class="pl-s"><span class="pl-pds">"</span>name<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>value<span class="pl-pds">"</span></span>).Parameter(<span class="pl-s"><span class="pl-pds">"</span>name2<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>value<span class="pl-pds">"</span></span>));
+
+<span class="pl-c">// Create build configuration under a project</span>
+buildConfiguration = <span class="pl-k">new</span> RemoteTc().Connect(_ =&gt; _.ToHost(<span class="pl-s"><span class="pl-pds">"</span>tc<span class="pl-pds">"</span></span>))
+    .CreateBuildConfiguration(_ =&gt; _.Id(<span class="pl-s"><span class="pl-pds">"</span>Trunk<span class="pl-pds">"</span></span>), <span class="pl-s"><span class="pl-pds">"</span>config name<span class="pl-pds">"</span></span>);
+
+<span class="pl-c">// Retrieves all the projects</span>
+<span class="pl-k">var</span> allProjects = <span class="pl-k">new</span> RemoteTc().Connect(_ =&gt; _.ToHost(<span class="pl-s"><span class="pl-pds">"</span>tc<span class="pl-pds">"</span></span>).AsGuest())
+    .GetAllProjects();</pre></div>
+
+<h1>
+<a id="how-can-i-help" class="anchor" href="#how-can-i-help" aria-hidden="true"><span class="octicon octicon-link"></span></a>How can I help</h1>
+
+<ul>
+<li>Vote  <a href="http://nugetmusthaves.com/Package/FluentTc">http://nugetmusthaves.com/Package/FluentTc</a>
+</li>
+<li>Contribute </li>
+</ul>
+
+<h1>
+<a id="teamcity-rest-api-reference" class="anchor" href="#teamcity-rest-api-reference" aria-hidden="true"><span class="octicon octicon-link"></span></a>TeamCity REST API reference</h1>
+
+<p>hhttps://confluence.jetbrains.com/display/TCD9/REST+API</p>
+
+<h2>
+<a id="dependencies" class="anchor" href="#dependencies" aria-hidden="true"><span class="octicon octicon-link"></span></a>Dependencies</h2>
+
+<ul>
+<li>Autofac <a href="http://autofac.org/">http://autofac.org/</a> (≥ 3.5.2)</li>
+<li>System.IO.Abstractions <a href="https://github.com/tathamoddie/System.IO.Abstractions">https://github.com/tathamoddie/System.IO.Abstractions</a> (≥ 2.0.0.116)</li>
+<li>EasyHttp <a href="https://github.com/hhariri/EasyHttp">https://github.com/hhariri/EasyHttp</a> (== 1.6.67.0)</li>
+</ul>
+
+<h2>
+<a id="guidelines-for-contributors" class="anchor" href="#guidelines-for-contributors" aria-hidden="true"><span class="octicon octicon-link"></span></a>Guidelines for contributors</h2>
+
+<ul>
+<li>Fork this repository </li>
+<li>Choose issue from open issues </li>
+<li>Develop using (A)TDD, Clean Code principles, SOLID</li>
+<li>Strive to fluent, readable, easy to discover API</li>
+<li>Use (A)TDD, Clean Code</li>
+<li>Submit Pull Request</li>
+</ul>
+
+<h2>
+<a id="license" class="anchor" href="#license" aria-hidden="true"><span class="octicon octicon-link"></span></a>License</h2>
+
+<p>Apache License 2.0</p>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/borismod/FluentTc">FluentTc</a> is maintained by <a href="https://github.com/borismod">borismod</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
