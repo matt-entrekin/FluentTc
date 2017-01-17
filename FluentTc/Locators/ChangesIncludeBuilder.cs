@@ -8,6 +8,7 @@ namespace FluentTc.Locators
         IChangesIncludeBuilder IncludeFiles();
         IChangesIncludeBuilder IncludeVcsRootInstance();
         IChangesIncludeBuilder IncludeDefaults();
+        IChangesIncludeBuilder ByCount(int count);
     }
 
     internal class ChangesIncludeBuilder : IChangesIncludeBuilder
@@ -16,6 +17,8 @@ namespace FluentTc.Locators
         {
             "id", "version", "href", "username", "date", "webUrl"
         });
+
+        public string Count { get; private set; }
 
         public IChangesIncludeBuilder IncludeDefaults()
         {
@@ -37,6 +40,12 @@ namespace FluentTc.Locators
         public IChangesIncludeBuilder IncludeVcsRootInstance()
         {
             m_Properties.Add("vcsRootInstance");
+            return this;
+        }
+
+        public IChangesIncludeBuilder ByCount(int count)
+        {
+            Count = $"count:{count}";
             return this;
         }
 

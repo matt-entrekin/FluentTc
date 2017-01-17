@@ -23,6 +23,8 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <RegisterForComInterop>false</RegisterForComInterop>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -70,6 +72,7 @@
     <Compile Include="Domain\RevisionsList.cs" />
     <Compile Include="Domain\RevisionsWrapper.cs" />
     <Compile Include="Domain\TestOccurrences.cs" />
+    <Compile Include="Engine\BuildModifier.cs" />
     <Compile Include="Locators\BuildState.cs" />
     <Compile Include="Locators\MoreOptionsHavingBuilder.cs" />
     <Compile Include="Bootstrapper.cs" />

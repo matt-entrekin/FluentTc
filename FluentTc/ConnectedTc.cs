@@ -153,6 +153,10 @@ namespace FluentTc
         /// <param name="having">Build criteria</param>
         /// <returns>List of build statistics</returns>
         IList<IBuildStatistic> GetBuildStatistics(Action<IBuildHavingBuilder> having);
+
+        void Pin(Action<IBuildHavingBuilder> buildHavingBuilder, string comment);
+
+        void Tag(Action<IBuildHavingBuilder> buildHavingBuilder, string tag);
     }
 
     internal class ConnectedTc : IConnectedTc
@@ -174,6 +178,7 @@ namespace FluentTc
         private readonly IBuildConfigurationTemplateRetriever m_BuildConfigurationTemplateRetriever;
         private readonly IProjectPropertySetter m_ProjectPropertySetter;
         private readonly IBuildStatisticsRetriever m_StatisticsRetriever;
+        private readonly IBuildModifier m_BuildModifier;
 
         public ConnectedTc(IBuildsRetriever buildsRetriever,
             IAgentsRetriever agentsRetriever,
@@ -191,7 +196,8 @@ namespace FluentTc
             IProjectPropertySetter projectPropertySetter, 
             IBuildConfigurationTemplateRetriever buildConfigurationTemplateRetriever,
             IChangesRetriever changesRetriever,
-            IBuildStatisticsRetriever statisticsRetriever)
+            IBuildStatisticsRetriever statisticsRetriever,
+            IBuildModifier buildModifier)
         {
             m_BuildsRetriever = buildsRetriever;
             m_AgentsRetriever = agentsRetriever;
@@ -210,6 +216,7 @@ namespace FluentTc
             m_BuildConfigurationTemplateRetriever = buildConfigurationTemplateRetriever;
             m_ChangesRetriever = changesRetriever;
             m_StatisticsRetriever = statisticsRetriever;
+            m_BuildModifier = buildModifier;
         }
 
         public IList<IBuild> GetBuilds(Action<IBuildHavingBuilder> having)
@@ -467,6 +474,16 @@ namespace FluentTc
         public IList<IBuildStatistic> GetBuildStatistics(Action<IBuildHavingBuilder> having)
         {
             return m_StatisticsRetriever.GetBuildStatistics(having);
+        }
+
+        public void Pin(Action<IBuildHavingBuilder> buildHavingBuilder, string comment)
+        {
+            m_BuildModifier.Pin(buildHavingBuilder, comment);
+        }
+
+        public void Tag(Action<IBuildHavingBuilder> buildHavingBuilder, string tag)
+        {
+            m_BuildModifier.Tag(buildHavingBuilder, tag);
         }
     }
 }

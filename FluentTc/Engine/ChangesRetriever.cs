@@ -29,6 +29,8 @@ namespace FluentTc.Engine
             include(changesIncludeBuilder);
             var columns = changesIncludeBuilder.GetColumns();
             var locator = changesHavingBuilder.GetLocator();
+            if (changesIncludeBuilder.Count != null)
+                locator = string.Join(",", locator, changesIncludeBuilder.Count);
 
             return m_TeamCityCaller.GetFormat<ChangesList>(@"/app/rest/changes?locator={0}&fields=change({1})", locator, columns).Change;
         }
